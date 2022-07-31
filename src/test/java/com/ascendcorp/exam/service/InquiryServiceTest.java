@@ -40,8 +40,6 @@ public class InquiryServiceTest {
     @Mock
     BankProxyGateway bankProxyGateway;
 
-    @Mock
-    Validator validator;
 
     @Test
     public void should_return500_when_noRequireValue() throws SQLException {

@@ -33,6 +33,6 @@ public class InquiryParamDTO {
     @NotEmpty(message = "Bank Number is required!")
     private String bankNumber;
 
-    @Min(value = 0, message = "Amount must more than zero!")
+    @Min(value = 1 , message = "Amount must more than zero!")
     private double amount;
 }

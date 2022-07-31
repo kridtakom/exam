@@ -5,14 +5,11 @@ import com.ascendcorp.exam.model.InquiryParamDTO;
 import com.ascendcorp.exam.model.InquiryServiceResultDTO;
 import com.ascendcorp.exam.model.TransferResponse;
 import com.ascendcorp.exam.proxy.BankProxyGateway;
-import lombok.NonNull;
 import org.apache.log4j.Logger;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
 
-import javax.validation.ConstraintViolation;
-import javax.validation.Valid;
-import javax.validation.Validator;
+import javax.validation.*;
 import javax.xml.ws.WebServiceException;
 import java.util.Date;
 import java.util.Set;
@@ -28,11 +25,11 @@ public class InquiryService {
     private final Validator validator;
 
     public InquiryService(
-            BankProxyGateway bankProxyGateway,
-            Validator validator
+            BankProxyGateway bankProxyGateway
     ) {
         this.bankProxyGateway = bankProxyGateway;
-        this.validator = validator;
+        ValidatorFactory validatorFactory = Validation.buildDefaultValidatorFactory();
+        this.validator = validatorFactory.getValidator();
     }
 
     public InquiryServiceResultDTO inquiry(String transactionId, Date tranDateTime, String channel, String locationCode, String bankCode, String bankNumber, double amount, String reference1, String reference2, String firstName, String lastName) {
@@ -68,66 +65,15 @@ public class InquiryService {
         }
     }
 
-    @Valid
-    @Validated
-    private void checkInquiryParams(
-            /*
-            @NonNull String transactionId,
-            @NonNull Date tranDateTime,
-            @NonNull String channel,
-            @NonNull String bankCode,
-            @NonNull String bankNumber,
-            double amount
-             */
-            InquiryParamDTO paramDTO
-    ) {
+    private void checkInquiryParams(InquiryParamDTO paramDTO) {
         Set<ConstraintViolation<InquiryParamDTO>> violations = validator.validate(paramDTO);
         if (!violations.isEmpty()) {
-            // StringBuilder sb = new StringBuilder();
             for (ConstraintViolation<InquiryParamDTO> constraintViolation : violations) {
                 String msg = constraintViolation.getMessage();
                 log.info(msg);
                 throw new NullPointerException(msg);
-                // sb.append(constraintViolation.getMessage());
             }
-            // throw new ConstraintViolationException("Error occurred: " + sb.toString(), violations);
         }
-        /*
-        if (transactionId == null) {
-            log.info("Transaction id is required!");
-            throw new NullPointerException("Transaction id is required!");
-        }
-
-        if (tranDateTime == null) {
-            log.info("Transaction DateTime is required!");
-            throw new NullPointerException("Transaction DateTime is required!");
-        }
-        if (channel == null) {
-            log.info("Channel is required!");
-            throw new NullPointerException("Channel is required!");
-        }
-        if (bankCode == null || bankCode.isEmpty()) {
-            log.info("Bank Code is required!");
-            throw new NullPointerException("Bank Code is required!");
-        }
-        if (bankNumber == null || bankNumber.isEmpty()) {
-            log.info("Bank Number is required!");
-            throw new NullPointerException("Bank Number is required!");
-        }
-        if (bankCode.isEmpty()) {
-            log.info("Bank Code is required!");
-            throw new NullPointerException("Bank Code is required!");
-        }
-        if (bankNumber.isEmpty()) {
-            log.info("Bank Number is required!");
-            throw new NullPointerException("Bank Number is required!");
-        }
-        if (amount <= 0) {
-            log.info("Amount must more than zero!");
-            throw new NullPointerException("Amount must more than zero!");
-        }
-
-         */
     }
 
     private InquiryServiceResultDTO handleBankPoxyGatewayResponse(TransferResponse response) throws Exception {
