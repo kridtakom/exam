@@ -1,32 +1,47 @@
 package com.ascendcorp.exam.service;
 
 import com.ascendcorp.exam.model.BANK_RESPONSE_CODE;
+import com.ascendcorp.exam.model.InquiryParamDTO;
 import com.ascendcorp.exam.model.InquiryServiceResultDTO;
 import com.ascendcorp.exam.model.TransferResponse;
 import com.ascendcorp.exam.proxy.BankProxyGateway;
 import lombok.NonNull;
 import org.apache.log4j.Logger;
 import org.springframework.stereotype.Service;
+import org.springframework.validation.annotation.Validated;
 
+import javax.validation.ConstraintViolation;
+import javax.validation.Valid;
+import javax.validation.Validator;
 import javax.xml.ws.WebServiceException;
 import java.util.Date;
+import java.util.Set;
 
 @Service
+@Validated
 public class InquiryService {
 
     private final BankProxyGateway bankProxyGateway;
 
     final static Logger log = Logger.getLogger(InquiryService.class);
 
-    public InquiryService(BankProxyGateway bankProxyGateway) {
+    private final Validator validator;
+
+    public InquiryService(
+            BankProxyGateway bankProxyGateway,
+            Validator validator
+    ) {
         this.bankProxyGateway = bankProxyGateway;
+        this.validator = validator;
     }
 
     public InquiryServiceResultDTO inquiry(String transactionId, Date tranDateTime, String channel, String locationCode, String bankCode, String bankNumber, double amount, String reference1, String reference2, String firstName, String lastName) {
         // InquiryServiceResultDTO respDTO = null;
         try {
             log.info("validate request parameters.");
-            checkInquiryParams(transactionId, tranDateTime, channel, bankCode, bankNumber, amount);
+            InquiryParamDTO params = new InquiryParamDTO(transactionId, tranDateTime, channel, bankCode, bankNumber, amount);
+            checkInquiryParams(params);
+            // checkInquiryParams(transactionId, tranDateTime, channel, bankCode, bankNumber, amount);
 
             log.info("call bank web service");
             TransferResponse response = bankProxyGateway.requestTransfer(transactionId, tranDateTime, channel, bankCode, bankNumber, amount, reference1, reference2);
@@ -53,14 +68,30 @@ public class InquiryService {
         }
     }
 
+    @Valid
+    @Validated
     private void checkInquiryParams(
+            /*
             @NonNull String transactionId,
             @NonNull Date tranDateTime,
             @NonNull String channel,
             @NonNull String bankCode,
             @NonNull String bankNumber,
             double amount
+             */
+            InquiryParamDTO paramDTO
     ) {
+        Set<ConstraintViolation<InquiryParamDTO>> violations = validator.validate(paramDTO);
+        if (!violations.isEmpty()) {
+            // StringBuilder sb = new StringBuilder();
+            for (ConstraintViolation<InquiryParamDTO> constraintViolation : violations) {
+                String msg = constraintViolation.getMessage();
+                log.info(msg);
+                throw new NullPointerException(msg);
+                // sb.append(constraintViolation.getMessage());
+            }
+            // throw new ConstraintViolationException("Error occurred: " + sb.toString(), violations);
+        }
         /*
         if (transactionId == null) {
             log.info("Transaction id is required!");
@@ -83,7 +114,6 @@ public class InquiryService {
             log.info("Bank Number is required!");
             throw new NullPointerException("Bank Number is required!");
         }
-         */
         if (bankCode.isEmpty()) {
             log.info("Bank Code is required!");
             throw new NullPointerException("Bank Code is required!");
@@ -96,6 +126,8 @@ public class InquiryService {
             log.info("Amount must more than zero!");
             throw new NullPointerException("Amount must more than zero!");
         }
+
+         */
     }
 
     private InquiryServiceResultDTO handleBankPoxyGatewayResponse(TransferResponse response) throws Exception {

@@ -3,15 +3,25 @@ package com.ascendcorp.exam.service;
 import com.ascendcorp.exam.model.InquiryServiceResultDTO;
 import com.ascendcorp.exam.model.TransferResponse;
 import com.ascendcorp.exam.proxy.BankProxyGateway;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
+import org.mockito.Spy;
 import org.mockito.junit.MockitoJUnitRunner;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.mock.mockito.MockBean;
 
+import javax.validation.ConstraintViolation;
+import javax.validation.Validator;
+import javax.validation.executable.ExecutableValidator;
+import javax.validation.metadata.BeanDescriptor;
 import javax.xml.ws.WebServiceException;
 import java.sql.SQLException;
 import java.util.Date;
+import java.util.Set;
 
 import static junit.framework.TestCase.assertEquals;
 import static junit.framework.TestCase.assertNotNull;
@@ -30,9 +40,11 @@ public class InquiryServiceTest {
     @Mock
     BankProxyGateway bankProxyGateway;
 
+    @Mock
+    Validator validator;
+
     @Test
     public void should_return500_when_noRequireValue() throws SQLException {
-
         // Transaction Id
         InquiryServiceResultDTO inquiry = inquiryService.inquiry(null, new Date(),
                 "Mobile", null,
