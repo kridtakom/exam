@@ -23,79 +23,34 @@ public class InquiryService {
     }
 
     public InquiryServiceResultDTO inquiry(String transactionId, Date tranDateTime, String channel, String locationCode, String bankCode, String bankNumber, double amount, String reference1, String reference2, String firstName, String lastName) {
-        InquiryServiceResultDTO respDTO = null;
+        // InquiryServiceResultDTO respDTO = null;
         try {
-
             log.info("validate request parameters.");
             checkInquiryParams(transactionId, tranDateTime, channel, bankCode, bankNumber, amount);
-
 
             log.info("call bank web service");
             TransferResponse response = bankProxyGateway.requestTransfer(transactionId, tranDateTime, channel, bankCode, bankNumber, amount, reference1, reference2);
 
             log.info("check bank response code");
-            if (response != null) //New
-            {
-                log.debug("found response code");
-                respDTO = new InquiryServiceResultDTO();
 
-                respDTO.setRef_no1(response.getReferenceCode1());
-                respDTO.setRef_no2(response.getReferenceCode2());
-                respDTO.setAmount(response.getBalance());
-                respDTO.setTranID(response.getBankTransactionID());
-
-
-                if (response.getResponseCode().equalsIgnoreCase(BANK_RESPONSE_CODE.APPROVED.name())) {
-                    // bank response code = approved
-                    respDTO = handleResponseCodeApproved(response, respDTO);
-
-                } else if (response.getResponseCode().equalsIgnoreCase(BANK_RESPONSE_CODE.INVALID_DATA.name())) {
-                    // bank response code = invalid_data
-                    respDTO = handleResponseCodeInvalidDate(response, respDTO);
-
-                } else if (response.getResponseCode().equalsIgnoreCase(BANK_RESPONSE_CODE.TRANSACTION_ERROR.name())) {
-                    // bank response code = transaction_error
-                    respDTO = handleResponseCodeTransactionError(response, respDTO);
-                } else if (response.getResponseCode().equalsIgnoreCase(BANK_RESPONSE_CODE.UNKNOWN.name())) {
-                    // bank response code = unknown
-                    respDTO = handleResponseCodeUnknown(response, respDTO);
-                } else {
-                    // bank code not support
-                    throw new Exception("Unsupport Error Reason Code");
-                }
-            } else
+            if (response != null) {
+                return handleBankPoxyGatewayResponse(response);
+            } else {
                 // no resport from bank
                 throw new Exception("Unable to inquiry from service.");
-        } catch (NullPointerException ne) {
-            if (respDTO == null) {
-                respDTO = new InquiryServiceResultDTO();
-                respDTO.setReasonCode("500");
-                respDTO.setReasonDesc("General Invalid Data");
             }
+        } catch (NullPointerException ne) {
+            // handle error from Inquiry params
+            return handleNullPointerException();
         } catch (WebServiceException r) {
             // handle error from bank web service
             String faultString = r.getMessage();
-            if (respDTO == null) {
-                respDTO = new InquiryServiceResultDTO();
-                if (faultString != null && (faultString.indexOf("java.net.SocketTimeoutException") > -1 || faultString.indexOf("Connection timed out") > -1)) {
-                    // bank timeout
-                    respDTO.setReasonCode("503");
-                    respDTO.setReasonDesc("Error timeout");
-                } else {
-                    // bank general error
-                    respDTO.setReasonCode("504");
-                    respDTO.setReasonDesc("Internal Application Error");
-                }
-            }
+            return handleWebServiceException(faultString);
         } catch (Exception e) {
+            // handle exception
             log.error("inquiry exception", e);
-            if (respDTO == null || (respDTO != null && respDTO.getReasonCode() == null)) {
-                respDTO = new InquiryServiceResultDTO();
-                respDTO.setReasonCode("504");
-                respDTO.setReasonDesc("Internal Application Error");
-            }
+            return handleException();
         }
-        return respDTO;
     }
 
     private void checkInquiryParams(
@@ -143,36 +98,62 @@ public class InquiryService {
         }
     }
 
-    private InquiryServiceResultDTO handleResponseCodeApproved(TransferResponse response, InquiryServiceResultDTO respDTO) {
-        respDTO.setReasonCode("200");
-        respDTO.setReasonDesc(response.getDescription());
-        respDTO.setAccountName(response.getDescription());
+    private InquiryServiceResultDTO handleBankPoxyGatewayResponse(TransferResponse response) throws Exception {
+        log.debug("found response code");
+        InquiryServiceResultDTO respDTO = new InquiryServiceResultDTO();
+
+        respDTO.setRef_no1(response.getReferenceCode1());
+        respDTO.setRef_no2(response.getReferenceCode2());
+        respDTO.setAmount(response.getBalance());
+        respDTO.setTranID(response.getBankTransactionID());
+
+        if (response.getResponseCode().equalsIgnoreCase(BANK_RESPONSE_CODE.APPROVED.name())) {
+            // bank response code = approved
+            handleResponseCodeApproved(response, respDTO);
+        } else if (response.getResponseCode().equalsIgnoreCase(BANK_RESPONSE_CODE.INVALID_DATA.name())) {
+            // bank response code = invalid_data
+            handleResponseCodeInvalidDate(response, respDTO);
+        } else if (response.getResponseCode().equalsIgnoreCase(BANK_RESPONSE_CODE.TRANSACTION_ERROR.name())) {
+            // bank response code = transaction_error
+            handleResponseCodeTransactionError(response, respDTO);
+        } else if (response.getResponseCode().equalsIgnoreCase(BANK_RESPONSE_CODE.UNKNOWN.name())) {
+            // bank response code = unknown
+            handleResponseCodeUnknown(response, respDTO);
+        } else {
+            // bank code not support
+            throw new Exception("Unsupport Error Reason Code");
+        }
         return respDTO;
     }
 
-    private InquiryServiceResultDTO handleResponseCodeInvalidDate(TransferResponse response, InquiryServiceResultDTO respDTO) {
+
+    private void handleResponseCodeApproved(TransferResponse response, InquiryServiceResultDTO respDTO) {
+        respDTO.setReasonCode("200");
+        respDTO.setReasonDesc(response.getDescription());
+        respDTO.setAccountName(response.getDescription());
+    }
+
+    private void handleResponseCodeInvalidDate(TransferResponse response, InquiryServiceResultDTO respDTO) {
         String replyDesc = response.getDescription();
         respDTO.setReasonCode("400");
         respDTO.setReasonDesc("General Invalid Data");
         if (replyDesc != null) {
-            String respDesc[] = replyDesc.split(":");
-            if (respDesc != null && respDesc.length >= 3) {
+            String[] respDesc = replyDesc.split(":");
+            if (respDesc.length >= 3) {
                 // bank description full format
                 respDTO.setReasonCode(respDesc[1]);
                 respDTO.setReasonDesc(respDesc[2]);
             }
         }
-        return respDTO;
     }
 
-    private InquiryServiceResultDTO handleResponseCodeTransactionError(TransferResponse response, InquiryServiceResultDTO respDTO) {
-
+    private void handleResponseCodeTransactionError(TransferResponse response, InquiryServiceResultDTO respDTO) {
         respDTO.setReasonCode("500");
         respDTO.setReasonDesc("General Transaction Error");
         String replyDesc = response.getDescription();
         if (replyDesc != null) {
-            String respDesc[] = replyDesc.split(":");
-            if (respDesc != null && respDesc.length >= 2) {
+            String[] respDesc = replyDesc.split(":");
+            if (respDesc.length >= 2) {
                 log.info("Case Inquiry Error Code Format Now Will Get From [0] and [1] first");
                 String subIdx1 = respDesc[0];
                 String subIdx2 = respDesc[1];
@@ -190,18 +171,15 @@ public class InquiryService {
                 }
             }
         }
-
-        return respDTO;
     }
 
-    private InquiryServiceResultDTO handleResponseCodeUnknown(TransferResponse response, InquiryServiceResultDTO respDTO) {
-
+    private void handleResponseCodeUnknown(TransferResponse response, InquiryServiceResultDTO respDTO) {
         respDTO.setReasonCode("501");
         respDTO.setReasonDesc("General Invalid Data");
         String replyDesc = response.getDescription();
         if (replyDesc != null) {
-            String respDesc[] = replyDesc.split(":");
-            if (respDesc != null && respDesc.length >= 2) {
+            String[] respDesc = replyDesc.split(":");
+            if (respDesc.length >= 2) {
                 // bank description full format
                 respDTO.setReasonCode(respDesc[0]);
                 respDTO.setReasonDesc(respDesc[1]);
@@ -210,8 +188,23 @@ public class InquiryService {
                 }
             }
         }
-        return respDTO;
     }
 
+    private InquiryServiceResultDTO handleWebServiceException(String faultString) {
+        if (faultString != null && (faultString.contains("java.net.SocketTimeoutException") || faultString.contains("Connection timed out"))) {
+            // bank timeout
+            return new InquiryServiceResultDTO(null, null, "503", "Error timeout", null, null, null, null, null);
+        } else {
+            // bank general error
+            return handleException();
+        }
+    }
 
+    private InquiryServiceResultDTO handleNullPointerException() {
+        return new InquiryServiceResultDTO(null, null, "500", "General Invalid Data", null, null, null, null, null);
+    }
+
+    private InquiryServiceResultDTO handleException() {
+        return new InquiryServiceResultDTO(null, null, "504", "Internal Application Error", null, null, null, null, null);
+    }
 }
