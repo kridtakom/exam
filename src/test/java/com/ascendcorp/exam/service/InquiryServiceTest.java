@@ -43,6 +43,7 @@ public class InquiryServiceTest {
         assertEquals("500", inquiry.getReasonCode());
         assertEquals("General Invalid Data", inquiry.getReasonDesc());
 
+
         // Datetime
         inquiry = inquiryService.inquiry("1234", null,
                 "Mobile", null,
@@ -101,8 +102,8 @@ public class InquiryServiceTest {
         transferResponse.setResponseCode("approved");
         transferResponse.setDescription("approved");
 
-        when(bankProxyGateway.requestTransfer(anyString(),any(),anyString(),anyString(),anyString(),
-                anyDouble(),anyString(),anyString())).thenReturn(transferResponse);
+        when(bankProxyGateway.requestTransfer(anyString(), any(), anyString(), anyString(), anyString(),
+                anyDouble(), anyString(), anyString())).thenReturn(transferResponse);
 
 
         InquiryServiceResultDTO inquiry = inquiryService.inquiry("123456", new Date(),
@@ -120,8 +121,8 @@ public class InquiryServiceTest {
         TransferResponse transferResponse = new TransferResponse();
         transferResponse.setResponseCode("invalid_data");
 
-        when(bankProxyGateway.requestTransfer(anyString(),any(),anyString(),anyString(),anyString(),
-                anyDouble(),anyString(),anyString())).thenReturn(transferResponse);
+        when(bankProxyGateway.requestTransfer(anyString(), any(), anyString(), anyString(), anyString(),
+                anyDouble(), anyString(), anyString())).thenReturn(transferResponse);
 
 
         InquiryServiceResultDTO inquiry = inquiryService.inquiry("123456", new Date(),
@@ -141,8 +142,8 @@ public class InquiryServiceTest {
         transferResponse.setResponseCode("invalid_data");
         transferResponse.setDescription("100:1091:Data type is invalid.");
 
-        when(bankProxyGateway.requestTransfer(anyString(),any(),anyString(),anyString(),anyString(),
-                anyDouble(),anyString(),anyString())).thenReturn(transferResponse);
+        when(bankProxyGateway.requestTransfer(anyString(), any(), anyString(), anyString(), anyString(),
+                anyDouble(), anyString(), anyString())).thenReturn(transferResponse);
 
 
         InquiryServiceResultDTO inquiry = inquiryService.inquiry("123456", new Date(),
@@ -161,8 +162,8 @@ public class InquiryServiceTest {
         transferResponse.setResponseCode("invalid_data");
         transferResponse.setDescription("General error.");
 
-        when(bankProxyGateway.requestTransfer(anyString(),any(),anyString(),anyString(),anyString(),
-                anyDouble(),anyString(),anyString())).thenReturn(transferResponse);
+        when(bankProxyGateway.requestTransfer(anyString(), any(), anyString(), anyString(), anyString(),
+                anyDouble(), anyString(), anyString())).thenReturn(transferResponse);
 
 
         InquiryServiceResultDTO inquiry = inquiryService.inquiry("123456", new Date(),
@@ -181,8 +182,8 @@ public class InquiryServiceTest {
         transferResponse.setResponseCode("transaction_error");
 
 
-        when(bankProxyGateway.requestTransfer(anyString(),any(),anyString(),anyString(),anyString(),
-                anyDouble(),anyString(),anyString())).thenReturn(transferResponse);
+        when(bankProxyGateway.requestTransfer(anyString(), any(), anyString(), anyString(), anyString(),
+                anyDouble(), anyString(), anyString())).thenReturn(transferResponse);
 
 
         InquiryServiceResultDTO inquiry = inquiryService.inquiry("123456", new Date(),
@@ -201,8 +202,8 @@ public class InquiryServiceTest {
         transferResponse.setResponseCode("transaction_error");
         transferResponse.setDescription("Transaction error.");
 
-        when(bankProxyGateway.requestTransfer(anyString(),any(),anyString(),anyString(),anyString(),
-                anyDouble(),anyString(),anyString())).thenReturn(transferResponse);
+        when(bankProxyGateway.requestTransfer(anyString(), any(), anyString(), anyString(), anyString(),
+                anyDouble(), anyString(), anyString())).thenReturn(transferResponse);
 
         InquiryServiceResultDTO inquiry = inquiryService.inquiry("123456", new Date(),
                 "Mobile", null,
@@ -220,8 +221,8 @@ public class InquiryServiceTest {
         transferResponse.setResponseCode("transaction_error");
         transferResponse.setDescription("100:1091:Transaction is error with code 1091.");
 
-        when(bankProxyGateway.requestTransfer(anyString(),any(),anyString(),anyString(),anyString(),
-                anyDouble(),anyString(),anyString())).thenReturn(transferResponse);
+        when(bankProxyGateway.requestTransfer(anyString(), any(), anyString(), anyString(), anyString(),
+                anyDouble(), anyString(), anyString())).thenReturn(transferResponse);
 
         InquiryServiceResultDTO inquiry = inquiryService.inquiry("123456", new Date(),
                 "Mobile", null,
@@ -239,8 +240,8 @@ public class InquiryServiceTest {
         transferResponse.setResponseCode("transaction_error");
         transferResponse.setDescription("1092:Transaction is error with code 1092.");
 
-        when(bankProxyGateway.requestTransfer(anyString(),any(),anyString(),anyString(),anyString(),
-                anyDouble(),anyString(),anyString())).thenReturn(transferResponse);
+        when(bankProxyGateway.requestTransfer(anyString(), any(), anyString(), anyString(), anyString(),
+                anyDouble(), anyString(), anyString())).thenReturn(transferResponse);
 
         InquiryServiceResultDTO inquiry = inquiryService.inquiry("123456", new Date(),
                 "Mobile", null,
@@ -258,8 +259,8 @@ public class InquiryServiceTest {
         transferResponse.setResponseCode("transaction_error");
         transferResponse.setDescription("98:Transaction is error with code 98.");
 
-        when(bankProxyGateway.requestTransfer(anyString(),any(),anyString(),anyString(),anyString(),
-                anyDouble(),anyString(),anyString())).thenReturn(transferResponse);
+        when(bankProxyGateway.requestTransfer(anyString(), any(), anyString(), anyString(), anyString(),
+                anyDouble(), anyString(), anyString())).thenReturn(transferResponse);
 
         InquiryServiceResultDTO inquiry = inquiryService.inquiry("123456", new Date(),
                 "Mobile", null,
@@ -276,8 +277,8 @@ public class InquiryServiceTest {
         TransferResponse transferResponse = new TransferResponse();
         transferResponse.setResponseCode("unknown");
 
-        when(bankProxyGateway.requestTransfer(anyString(),any(),anyString(),anyString(),anyString(),
-                anyDouble(),anyString(),anyString())).thenReturn(transferResponse);
+        when(bankProxyGateway.requestTransfer(anyString(), any(), anyString(), anyString(), anyString(),
+                anyDouble(), anyString(), anyString())).thenReturn(transferResponse);
 
         InquiryServiceResultDTO inquiry = inquiryService.inquiry("123456", new Date(),
                 "Mobile", null,
@@ -295,8 +296,8 @@ public class InquiryServiceTest {
         transferResponse.setResponseCode("unknown");
         transferResponse.setDescription("5001:Unknown error code 5001");
 
-        when(bankProxyGateway.requestTransfer(anyString(),any(),anyString(),anyString(),anyString(),
-                anyDouble(),anyString(),anyString())).thenReturn(transferResponse);
+        when(bankProxyGateway.requestTransfer(anyString(), any(), anyString(), anyString(), anyString(),
+                anyDouble(), anyString(), anyString())).thenReturn(transferResponse);
 
         InquiryServiceResultDTO inquiry = inquiryService.inquiry("123456", new Date(),
                 "Mobile", null,
@@ -314,8 +315,8 @@ public class InquiryServiceTest {
         transferResponse.setResponseCode("unknown");
         transferResponse.setDescription("5002: ");
 
-        when(bankProxyGateway.requestTransfer(anyString(),any(),anyString(),anyString(),anyString(),
-                anyDouble(),anyString(),anyString())).thenReturn(transferResponse);
+        when(bankProxyGateway.requestTransfer(anyString(), any(), anyString(), anyString(), anyString(),
+                anyDouble(), anyString(), anyString())).thenReturn(transferResponse);
 
         InquiryServiceResultDTO inquiry = inquiryService.inquiry("123456", new Date(),
                 "Mobile", null,
@@ -333,8 +334,8 @@ public class InquiryServiceTest {
         transferResponse.setResponseCode("unknown");
         transferResponse.setDescription("General Invalid Data code 501");
 
-        when(bankProxyGateway.requestTransfer(anyString(),any(),anyString(),anyString(),anyString(),
-                anyDouble(),anyString(),anyString())).thenReturn(transferResponse);
+        when(bankProxyGateway.requestTransfer(anyString(), any(), anyString(), anyString(), anyString(),
+                anyDouble(), anyString(), anyString())).thenReturn(transferResponse);
 
         InquiryServiceResultDTO inquiry = inquiryService.inquiry("123456", new Date(),
                 "Mobile", null,
@@ -352,8 +353,8 @@ public class InquiryServiceTest {
         transferResponse.setResponseCode("not_support");
         transferResponse.setDescription("Not support");
 
-        when(bankProxyGateway.requestTransfer(anyString(),any(),anyString(),anyString(),anyString(),
-                anyDouble(),anyString(),anyString())).thenReturn(transferResponse);
+        when(bankProxyGateway.requestTransfer(anyString(), any(), anyString(), anyString(), anyString(),
+                anyDouble(), anyString(), anyString())).thenReturn(transferResponse);
 
         InquiryServiceResultDTO inquiry = inquiryService.inquiry("123456", new Date(),
                 "Mobile", null,
@@ -368,8 +369,8 @@ public class InquiryServiceTest {
     @Test
     public void should_return504_when_responseNull() throws SQLException {
 
-        when(bankProxyGateway.requestTransfer(anyString(),any(),anyString(),anyString(),anyString(),
-                anyDouble(),anyString(),anyString())).thenReturn(null);
+        when(bankProxyGateway.requestTransfer(anyString(), any(), anyString(), anyString(), anyString(),
+                anyDouble(), anyString(), anyString())).thenReturn(null);
 
         InquiryServiceResultDTO inquiry = inquiryService.inquiry("123456", new Date(),
                 "Mobile", null,
@@ -384,8 +385,8 @@ public class InquiryServiceTest {
     @Test
     public void should_return503_when_throwWebServiceException() throws SQLException {
 
-        when(bankProxyGateway.requestTransfer(anyString(),any(),anyString(),anyString(),anyString(),
-                anyDouble(),anyString(),anyString())).thenThrow(WebServiceException.class);
+        when(bankProxyGateway.requestTransfer(anyString(), any(), anyString(), anyString(), anyString(),
+                anyDouble(), anyString(), anyString())).thenThrow(WebServiceException.class);
 
         InquiryServiceResultDTO inquiry = inquiryService.inquiry("123456", new Date(),
                 "Mobile", null,
@@ -402,8 +403,8 @@ public class InquiryServiceTest {
 
         WebServiceException ex = new WebServiceException("java.net.SocketTimeoutException error");
 
-        when(bankProxyGateway.requestTransfer(anyString(),any(),anyString(),anyString(),anyString(),
-                anyDouble(),anyString(),anyString())).thenThrow(ex);
+        when(bankProxyGateway.requestTransfer(anyString(), any(), anyString(), anyString(), anyString(),
+                anyDouble(), anyString(), anyString())).thenThrow(ex);
 
         InquiryServiceResultDTO inquiry = inquiryService.inquiry("123456", new Date(),
                 "Mobile", null,
@@ -420,8 +421,8 @@ public class InquiryServiceTest {
 
         WebServiceException ex = new WebServiceException("Server Connection timed out");
 
-        when(bankProxyGateway.requestTransfer(anyString(),any(),anyString(),anyString(),anyString(),
-                anyDouble(),anyString(),anyString())).thenThrow(ex);
+        when(bankProxyGateway.requestTransfer(anyString(), any(), anyString(), anyString(), anyString(),
+                anyDouble(), anyString(), anyString())).thenThrow(ex);
 
         InquiryServiceResultDTO inquiry = inquiryService.inquiry("123456", new Date(),
                 "Mobile", null,
